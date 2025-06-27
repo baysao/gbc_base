@@ -28,12 +28,13 @@ end
 
 -- globals
 
-LUA_BIN = ROOT_DIR .. "/bin/openresty/luajit/bin/luajit"
-NGINX_DIR = ROOT_DIR .. "/bin/openresty/nginx"
+LUA_BIN = ROOT_DIR .. "/usr/local/openresty/luajit/bin/luajit"
+NGINX_DIR = ROOT_DIR .. "/usr/local/openresty/nginx"
 REDIS_DIR = ROOT_DIR .. "/bin/redis"
 SSDB_DIR = ROOT_DIR .. "/bin/ssdb"
-TMP_DIR = ROOT_DIR .. "/tmp"
-CONF_DIR = ROOT_DIR .. "/gbc/conf"
+TMP_DIR =  "/tmp/app"
+-- TMP_DIR = ROOT_DIR .. "/tmp"
+CONF_DIR = ROOT_DIR .. "/conf"
 DB_DIR = ROOT_DIR .. "/db"
 VAR_CONF_ENV = ROOT_DIR .. "/src/env.lua"
 
@@ -62,7 +63,7 @@ local supervisors_once = {}
 local _SUPERVISOR_WORKER_PROG_TMPL =
     [[
 [program:worker-_APP_NAME_]
-command=_GBC_CORE_ROOT_/bin/openresty/luajit/bin/lua _GBC_CORE_ROOT_/gbc/bin/start_worker.lua _GBC_CORE_ROOT_ _APP_ROOT_ '_LUA_PATH_' '_LUA_CPATH_'
+command=/usr/local/openresty/luajit/bin/luajit _GBC_CORE_ROOT_/bin/start_worker.lua _GBC_CORE_ROOT_ _APP_ROOT_ '_LUA_PATH_' '_LUA_CPATH_'
 process_name=%%(process_num)02d
 numprocs=_NUM_PROCESS_
 redirect_stderr=true
@@ -85,7 +86,7 @@ function updateConfigs()
 
     local includes_path, includes_cpath = _updateNginxConfig()
     _updateRedisConfig()
-    _updateSsdbConfig()
+    -- _updateSsdbConfig()
     _updateRsyncdConfig()
     _updateSupervisordConfig(includes_path, includes_cpath)
 end
@@ -93,22 +94,14 @@ end
 -- init
 
 package.path =
-    ROOT_DIR ..
-    "/src/?.lua;" ..
-        ROOT_DIR ..
-   "/bin/openresty/lualib/?.lua;" ..
-           ROOT_DIR ..
-            "/bin/openresty/site/lualib/?.lua;" ..
-                ROOT_DIR .. "/gbc/lib/?.lua;" .. ROOT_DIR .. "/gbc/src/?.lua;" .. package.path
+   "/usr/local/openresty/lualib/?.lua;" ..
+            "/usr/local/openresty/site/lualib/?.lua;" ..
+                ROOT_DIR .. "/lib/?.lua;" .. ROOT_DIR .. "/src/?.lua;" .. package.path
 
 package.cpath =
-    ROOT_DIR ..
-    "/src/?.so;" ..
-        ROOT_DIR ..
-   "/bin/openresty/lualib/?.so;" ..
-           ROOT_DIR ..
-            "/bin/openresty/site/lualib/?.so;" ..
-                ROOT_DIR .. "/gbc/lib/?.so;" .. ROOT_DIR .. "/gbc/src/?.so;" .. package.cpath
+   "/usr/local/openresty/lualib/?.so;" ..
+            "/usr/local/openresty/site/lualib/?.so;" ..
+                ROOT_DIR .. "/lib/?.so;" .. ROOT_DIR .. "/src/?.so;" .. package.cpath
 
 local inspect = require "inspect"
 require("framework.init")
@@ -476,7 +469,7 @@ local _updateAppConfig = function(site_name, site_path, idx)
             --                 "/bin/bin/lemplate --compile " .. templ_path .. "/*.tt2 >" .. templ_name .. ".lua"
             --             print(cmd)
             --             os.execute(cmd)
-            --         --                        cmd = ROOT_DIR .. "/bin/openresty/bin/jemplate --compile " .. templ_path .. "/*.html >" .. templ_path .. "/" .. templ_name .. ".js"
+            --         --                        cmd = ROOT_DIR .. "/usr/local/openresty/bin/jemplate --compile " .. templ_path .. "/*.html >" .. templ_path .. "/" .. templ_name .. ".js"
             --         --                        print(cmd)
             --         --                        os.execute(cmd)
             --         end
@@ -689,8 +682,8 @@ _updateNginxConfig = function()
         local site_opt = _checkConfig(_site_path .. "/config.lua")
 
         -- if io.exists(_site_path .. "/apps/config.ld") then
-        --     print("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
-        --     os.execute("/app/bin/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
+        --     print("/app/usr/local/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
+        --     os.execute("/app/usr/local/openresty/luajit/bin/ldoc " .. _site_path .. "/apps")
         -- end
 
         local apps = _getValue(site_opt, "apps")
@@ -830,11 +823,11 @@ _updateRedisConfig = function()
         if string.sub(socket, 1, 5) == "unix:" then
             socket = string.sub(socket, 6)
         end
-        contents = string.gsub(contents, "[# \t]*unixsocket[ \t]+[^\n]+", string.format("unixsocket %s", socket))
+        -- contents = string.gsub(contents, "[# \t]*unixsocket[ \t]+[^\n]+", string.format("unixsocket %s", socket))
         contents = string.gsub(contents, "[# \t]*bind[ \t]+[%d\\.]+", "# bind 127.0.0.1")
         contents = string.gsub(contents, "[# \t]*port[ \t]+%d+", "port 0")
-    else
-        contents = string.gsub(contents, "[# \t]*unixsocket[ \t]+", "# unixsocket")
+    -- else
+        -- contents = string.gsub(contents, "[# \t]*unixsocket[ \t]+", "# unixsocket")
     end
 
     local host = _getValue(config, "server.redis.host", "127.0.0.1")

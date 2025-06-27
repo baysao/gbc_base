@@ -42,21 +42,21 @@ local LUA_CPATH = args[4]
 
 package.path =
    LUA_PATH .. ";" ..
-   ROOT_DIR .. "/bin/openresty/lualib/?.lua;" ..
-   ROOT_DIR .. "/bin/openresty/site/lualib/?.lua;" ..
-   ROOT_DIR .. "/gbc/src/?.lua;" ..
+   "/usr/local/openresty/lualib/?.lua;" ..
+   "/usr/local/openresty/site/lualib/?.lua;" ..
    ROOT_DIR .. "/src/?.lua;" .. package.path
 
 package.cpath =
    LUA_CPATH .. ";" ..
-   ROOT_DIR .. "/bin/openresty/lualib/?.so;" ..
-   ROOT_DIR .. "/bin/openresty/site/lualib/?.so;" ..
-   ROOT_DIR .. "/gbc/src/?.so;" ..
+   "/usr/local/openresty/lualib/?.so;" ..
+   "/usr/local/openresty/site/lualib/?.so;" ..
    ROOT_DIR .. "/src/?.so;" .. package.cpath
 
 require("framework.init")
-local appKeys = dofile(ROOT_DIR .. "/tmp/app_keys.lua")
-local globalConfig = dofile(ROOT_DIR .. "/tmp/config.lua")
+-- local appKeys = dofile(ROOT_DIR .. "/tmp/app_keys.lua")
+local appKeys = dofile("/tmp/app/app_keys.lua")
+-- local globalConfig = dofile(ROOT_DIR .. "/tmp/config.lua")
+local globalConfig = dofile("/tmp/app/config.lua")
 
 cc.DEBUG = globalConfig.DEBUG
 

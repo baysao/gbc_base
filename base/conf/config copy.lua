@@ -48,7 +48,7 @@ local config = {
         },
         -- internal memory database
         redis = {
-            socket = "unix:/tmp/app/redis.sock",
+            socket = "unix:_GBC_CORE_ROOT_/tmp/redis.sock",
             -- host = "127.0.0.1",
             port = 0,
             timeout = 120 -- 10 seconds
@@ -61,7 +61,7 @@ local config = {
         -- background job server
         beanstalkd = {
 	   --host         = "127.0.0.1",
-            host = "unix:/tmp/app/beanstalkd.sock",
+            host = "unix:_GBC_CORE_ROOT_/tmp/beanstalkd.sock",
             port = 11300
         }
     }

@@ -20,8 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-]]
-local ngx = ngx
+]] local ngx = ngx
 local ngx_say = ngx.say
 local req_get_body_data = ngx.req.get_body_data
 local req_get_headers = ngx.req.get_headers
@@ -76,7 +75,9 @@ function HttpInstanceBase:ctor(config)
             if body then
                 local data, err = json.decode(body)
                 if err then
-                    cc.printwarn("HttpInstanceBase:ctor() - invalid JSON content, %s", err)
+                    cc.printwarn(
+                        "HttpInstanceBase:ctor() - invalid JSON content, %s",
+                        err)
                 else
                     table_merge(self._requestParameters, data)
                 end
@@ -97,9 +98,7 @@ function HttpInstanceBase:run()
         ngx.exit(ngx.HTTP_OK)
     else
         ngx.status = ngx.HTTP_OK
-        if result then
-            ngx_say(result)
-        end
+        if result then ngx_say(result) end
     end
 end
 
@@ -108,26 +107,21 @@ function HttpInstanceBase:runEventLoop()
     local actionName = self._requestParameters.action or ""
     actionName = tostring(actionName)
     if cc.DEBUG > cc.DEBUG_WARN then
-        cc.printinfo("HTTP action: %s, data: %s", actionName, json.encode(self._requestParameters))
+        cc.printinfo("HTTP action: %s, data: %s", actionName,
+                     json.encode(self._requestParameters))
     end
 
     local err = nil
-    local ok, result =
-        xpcall(
-        function()
-            return self:runAction(actionName, self._requestParameters)
-        end,
-        function(_err)
-            err = _err
-            if cc.DEBUG > cc.DEBUG_WARN then
-                err = debug.traceback(err, 3)
-                cc.printwarn(err)
-            end
+    local ok, result = xpcall(function()
+        return self:runAction(actionName, self._requestParameters)
+    end, function(_err)
+        err = _err
+        if cc.DEBUG > cc.DEBUG_WARN then
+            err = debug.traceback(err, 3)
+            cc.printwarn(err)
         end
-    )
-    if err then
-        return nil, self:_formatError(actionName, err)
-    end
+    end)
+    if err then return nil, self:_formatError(actionName, err) end
     return result
 end
 
@@ -136,25 +130,31 @@ function HttpInstanceBase:_formatError(actionName, err)
 end
 
 function HttpInstanceBase:_genOutput(result, err)
-    local rtype = type(result)
+    -- local rtype = type(result)
     if self.config.app.messageFormat == Constants.MESSAGE_FORMAT_JSON then
-       if err then
-	  cc.printerror(err)
+        if err then
+            cc.printerror(err)
             result = {result = false}
-        elseif rtype == "nil" then
-            result = {}
-        elseif rtype ~= "table" then
-            result = {result = tostring(result)}
+        -- elseif rtype == "nil" then
+        --     result = {}
+        -- elseif rtype ~= "table" then
+        --     result = {result = tostring(result)}
         end
+        if result._messageFormat and result._messageFormat == Constants.MESSAGE_FORMAT_TEXT then
+            ngx.header.content_type = result._contentType or "text/plain"
+            ngx.status = result._statusCode or ngx.HTTP_OK
+            if result._redirectUrl then ngx.redirect(result._redirectUrl, ngx.status or 301) end
+            return tostring(result.data)
+        end
+
         return json.encode(result)
     elseif self.config.app.messageFormat == Constants.MESSAGE_FORMAT_TEXT then
         if err then
             return nil, err
-        elseif rtype == "nil" then
-            return ""
-        else
-            return tostring(result)
+        -- elseif rtype == "nil" then
+        --     return ""
         end
+        return tostring(result)
     end
 end
 
