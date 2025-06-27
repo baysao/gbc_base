@@ -4,8 +4,8 @@ local _config = {
     lua_package_path = [[_GBC_CORE_ROOT_/src/?.lua;]],
     lua_package_cpath = [[_GBC_CORE_ROOT_/src/?.so;]],
     sites = {
-        portal = {
-            path = "couponly",
+        example = {
+            path = "example",
             eventinit = [[
 #worker_connections 1024;
 ]],
