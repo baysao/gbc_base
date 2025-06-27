@@ -41,8 +41,8 @@ lua_code_cache off;
         ]],
             luainit = [[
 require("framework.init")
-local appKeys = dofile("_GBC_CORE_ROOT_/tmp/app_keys.lua")
-local globalConfig = dofile("_GBC_CORE_ROOT_/tmp/config.lua")
+local appKeys = dofile("/app/tmp/app_keys.lua")
+local globalConfig = dofile("/app/tmp/config.lua")
 cc.DEBUG = globalConfig.DEBUG
 local gbc = cc.import("#gbc")
 cc.exports.nginxBootstrap = gbc.NginxBootstrap:new(appKeys, globalConfig)
