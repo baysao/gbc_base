@@ -285,6 +285,6 @@ _beanstalk() {
 #if [ $# -gt 0 ];then $@;exit 0;fi
 
 _env
-#_lualib
-#_redis
-#_beanstalk
+_lualib
+_redis
+_beanstalk
