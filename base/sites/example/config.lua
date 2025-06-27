@@ -6,8 +6,7 @@ local _config = {
     },
     templates = {},
     apps = {
-        client = "apps/client",
-        -- welcome = "apps/welcome",
+        welcome = "apps/welcome",
     },
     supervisor = [[
     ]]
